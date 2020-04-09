@@ -79,14 +79,14 @@ import java.util.Comparator;
     public static class TaskAZComparator implements Comparator<Task> {
         @Override
         public int compare(Task left, Task right) {
-            return left.name.compareTo(right.name);
+            return left.name.compareToIgnoreCase(right.name);
         }
     }
 
     public static class TaskZAComparator implements Comparator<Task> {
         @Override
         public int compare(Task left, Task right) {
-            return right.name.compareTo(left.name);
+            return right.name.compareToIgnoreCase(left.name);
         }
     }
 
