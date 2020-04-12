@@ -22,7 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.cleanup.todoc.R;
 import com.cleanup.todoc.model.Project;
 import com.cleanup.todoc.model.Task;
-import com.cleanup.todoc.viewmodel.TaskViewModel;
+import com.cleanup.todoc.viewmodel.TodocViewModel;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,7 +37,7 @@ import java.util.List;
  */
 public class MainActivity extends AppCompatActivity implements TasksAdapter.DeleteTaskListener {
 
-    private TaskViewModel taskViewModel;
+    private TodocViewModel todocViewModel;
 
     private final Project[] allProjects = Project.getAllProjects();
 
@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         recyclerView = findViewById(R.id.list_tasks);
         lblNoTasks = findViewById(R.id.lbl_no_task);
         findViewById(R.id.fab_add_task).setOnClickListener(view -> showAddTaskDialog());
-        taskViewModel = new ViewModelProvider(this).get(TaskViewModel.class);
+        todocViewModel = new ViewModelProvider(this).get(TodocViewModel.class);
         initRecyclerview();
     }
 
@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(adapter);
 
-        taskViewModel.getAllTasks().observe(this, tasks -> {
+        todocViewModel.getAllTasks().observe(this, tasks -> {
             taskList = tasks;
             if (taskList.size() == 0) {
                 lblNoTasks.setVisibility(View.VISIBLE);
@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
                 recyclerView.setVisibility(View.VISIBLE);
             }
             Collections.sort(taskList, new Task.TaskRecentComparator());
-            adapter.setTasks(taskList);
+            adapter.updateTasks(taskList);
         });
     }
 
@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
                 Collections.sort(taskList, new Task.TaskOldComparator());
                 break;
         }
-        adapter.setTasks(taskList);
+        adapter.updateTasks(taskList);
     }
 
     @Override
@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
 
     @Override
     public void onDeleteTask(Task task) {
-        taskViewModel.deleteTask(task);
+        todocViewModel.deleteTask(task);
         initRecyclerview();
     }
 
@@ -195,7 +195,7 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
     }
 
     private void addTask(@NonNull Task task) {
-        taskViewModel.insertTask(task);
+        todocViewModel.insertTask(task);
         Collections.sort(taskList, new Task.TaskRecentComparator());
         initRecyclerview();
     }
@@ -226,12 +226,16 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
     }
 
     private void populateDialogSpinner() {
-        final ArrayAdapter<Project> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item,
-                allProjects);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        assert dialogSpinner != null;
-        dialogSpinner.setAdapter(adapter);
+        todocViewModel.getAllProjects().observe(this, projects -> {
+            projectList = projects;
 
+            final ArrayAdapter<Project> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, allProjects);
+            arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            assert dialogSpinner != null;
+            dialogSpinner.setAdapter(arrayAdapter);
+            adapter.notifyDataSetChanged();
+
+        });
     }
 
     /**

@@ -13,7 +13,7 @@ import com.cleanup.todoc.repositories.TaskRepository;
 
 import java.util.List;
 
-public class TaskViewModel extends AndroidViewModel {
+public class TodocViewModel extends AndroidViewModel {
 
     private ProjectRepository projectRepository;
     private TaskRepository taskRepository;
@@ -21,7 +21,7 @@ public class TaskViewModel extends AndroidViewModel {
     private LiveData<List<Task>> allTasks;
 
 
-    public TaskViewModel(@NonNull Application application) {
+    public TodocViewModel(@NonNull Application application) {
         super(application);
         projectRepository = new ProjectRepository(application);
         taskRepository = new TaskRepository(application);
