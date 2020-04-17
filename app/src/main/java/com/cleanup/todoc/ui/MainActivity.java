@@ -44,8 +44,6 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
     @NonNull
     private List<Task> taskList = new ArrayList<>();
 
-    private List<Project> projectList = new ArrayList<>();
-
     private final TasksAdapter adapter = new TasksAdapter(taskList, this);
 
     @NonNull
@@ -74,14 +72,14 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         recyclerView = findViewById(R.id.list_tasks);
         lblNoTasks = findViewById(R.id.lbl_no_task);
         findViewById(R.id.fab_add_task).setOnClickListener(view -> showAddTaskDialog());
+
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         todocViewModel = new ViewModelProvider(this).get(TodocViewModel.class);
-        initRecyclerview();
+        updateTasks();
     }
 
-    private void initRecyclerview() {
-        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        recyclerView.setAdapter(adapter);
-
+    private void updateTasks() {
         todocViewModel.getAllTasks().observe(this, tasks -> {
             taskList = tasks;
             if (taskList.size() == 0) {
@@ -90,28 +88,23 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
             } else {
                 lblNoTasks.setVisibility(View.GONE);
                 recyclerView.setVisibility(View.VISIBLE);
+                switch (sortMethod) {
+                    case ALPHABETICAL:
+                        Collections.sort(taskList, new Task.TaskAZComparator());
+                        break;
+                    case ALPHABETICAL_INVERTED:
+                        Collections.sort(taskList, new Task.TaskZAComparator());
+                        break;
+                    case RECENT_FIRST:
+                        Collections.sort(taskList, new Task.TaskRecentComparator());
+                        break;
+                    case OLD_FIRST:
+                        Collections.sort(taskList, new Task.TaskOldComparator());
+                        break;
+                }
             }
-            Collections.sort(taskList, new Task.TaskRecentComparator());
-            adapter.updateTasks(taskList);
+            adapter.setTasks(taskList);
         });
-    }
-
-    private void sortMethod() {
-        switch (sortMethod) {
-            case ALPHABETICAL:
-                Collections.sort(taskList, new Task.TaskAZComparator());
-                break;
-            case ALPHABETICAL_INVERTED:
-                Collections.sort(taskList, new Task.TaskZAComparator());
-                break;
-            case RECENT_FIRST:
-                Collections.sort(taskList, new Task.TaskRecentComparator());
-                break;
-            case OLD_FIRST:
-                Collections.sort(taskList, new Task.TaskOldComparator());
-                break;
-        }
-        adapter.updateTasks(taskList);
     }
 
     @Override
@@ -134,14 +127,14 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         } else if (id == R.id.filter_recent_first) {
             sortMethod = SortMethod.RECENT_FIRST;
         }
-        sortMethod();
+        updateTasks();
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onDeleteTask(Task task) {
         todocViewModel.deleteTask(task);
-        initRecyclerview();
+        updateTasks();
     }
 
     private void onPositiveButtonClick(DialogInterface dialogInterface) {
@@ -162,11 +155,8 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
             }
             // If both project and name of the task have been set
             else if (taskProject != null) {
-                // TODO: Replace this by id of persisted task
-                long id = (long) (Math.random() * 50000);
 
-
-                Task task = new Task(id, taskProject.getId(), taskName, new Date().getTime());
+                Task task = new Task(taskProject.getId(), taskName, new Date().getTime());
 
                 addTask(task);
 
@@ -197,7 +187,7 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
     private void addTask(@NonNull Task task) {
         todocViewModel.insertTask(task);
         Collections.sort(taskList, new Task.TaskRecentComparator());
-        initRecyclerview();
+        updateTasks();
     }
 
     @NonNull
@@ -226,16 +216,10 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
     }
 
     private void populateDialogSpinner() {
-        todocViewModel.getAllProjects().observe(this, projects -> {
-            projectList = projects;
-
-            final ArrayAdapter<Project> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, allProjects);
-            arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            assert dialogSpinner != null;
-            dialogSpinner.setAdapter(arrayAdapter);
-            adapter.notifyDataSetChanged();
-
-        });
+        final ArrayAdapter<Project> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, allProjects);
+        arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        assert dialogSpinner != null;
+        dialogSpinner.setAdapter(arrayAdapter);
     }
 
     /**

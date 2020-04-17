@@ -60,7 +60,7 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHold
         return tasks.size();
     }
 
-    void updateTasks(List<Task> tasks){
+    void setTasks(List<Task> tasks){
         this.tasks = tasks;
         notifyDataSetChanged();
     }

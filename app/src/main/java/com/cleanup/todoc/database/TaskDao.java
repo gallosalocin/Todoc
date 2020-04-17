@@ -23,9 +23,6 @@ import java.util.List;
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertTask(Task task);
 
-    @Update
-    void updateTask(Task task);
-
     @Delete
     void deleteTask(Task task);
 }

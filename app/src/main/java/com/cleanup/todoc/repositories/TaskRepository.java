@@ -24,21 +24,11 @@ public class TaskRepository {
     }
 
     public void insertTask(Task task) {
-        TodocRoomDatabase.databaseWriteExecutor.execute(() -> {
-            taskDao.insertTask(task);
-        });
-    }
-
-    public void updateTask(Task task) {
-        TodocRoomDatabase.databaseWriteExecutor.execute(() -> {
-            taskDao.updateTask(task);
-        });
+        TodocRoomDatabase.databaseWriteExecutor.execute(() -> taskDao.insertTask(task));
     }
 
     public void deleteTask(Task task) {
-        TodocRoomDatabase.databaseWriteExecutor.execute(() -> {
-            taskDao.deleteTask(task);
-        });
+        TodocRoomDatabase.databaseWriteExecutor.execute(() -> taskDao.deleteTask(task));
     }
 
     public LiveData<List<Task>> getAllTasks() {
