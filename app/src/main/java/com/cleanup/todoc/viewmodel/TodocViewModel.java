@@ -20,7 +20,6 @@ public class TodocViewModel extends AndroidViewModel {
     private LiveData<List<Project>> allProjects;
     private LiveData<List<Task>> allTasks;
 
-
     public TodocViewModel(@NonNull Application application) {
         super(application);
         projectRepository = new ProjectRepository(application);

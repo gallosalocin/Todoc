@@ -186,7 +186,6 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
 
     private void addTask(@NonNull Task task) {
         todocViewModel.insertTask(task);
-        Collections.sort(taskList, new Task.TaskRecentComparator());
         updateTasks();
     }
 
