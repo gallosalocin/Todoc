@@ -15,7 +15,7 @@ import java.util.List;
     @Query("SELECT * FROM Project")
     LiveData<List<Project>> getAllProjects();
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertProject(Project project);
 
 }
